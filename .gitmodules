@@ -1,0 +1,3 @@
+[submodule "spacy_german_preprocessing"]
+	path = spacy_german_preprocessing
+	url = https://github.com/Mistscream/spacy_german_preprocessing.git
