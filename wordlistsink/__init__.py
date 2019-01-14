@@ -1,0 +1,1 @@
+from wordlistsink.kafkasink import KafkaWordlistSink

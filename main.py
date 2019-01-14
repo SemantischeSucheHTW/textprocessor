@@ -1,9 +1,10 @@
 import os
 
-from indexdao.mongodbwortindexdao import MongoDBWortIndexDao
+from indexdao import MongoDBWortIndexDao
 from spacy_preprocessing.preprocess import Preprocess
 from textdao import MongoDBTextDao
 from urlsource import KafkaSource
+from wordlistsink import KafkaWordlistSink
 
 
 def env(key):
@@ -39,6 +40,11 @@ wortindexdao = MongoDBWortIndexDao({
     "authSource": env("MONGODB_DB")
 })
 
+wordlistsink = KafkaWordlistSink({
+        "topic": env("KAFKA_NEW_WORDLIST_TOPIC"),
+        "bootstrap_servers": env("KAFKA_BOOTSTRAP_SERVERS"),
+})
+
 while True:
     url = urlSource.getURL()
 
@@ -47,12 +53,10 @@ while True:
 
     text = textdao.getText(url)
 
-    words = Preprocess(text).preprocess(sentence_split=False, with_pos=False)
-
-    textdao.saveWords(url, words)
+    lemma_words = Preprocess(text).preprocess(sentence_split=False, with_pos=False, do_lemma=True)
 
     wordcounts = {}
-    for word in words:
+    for word in lemma_words:
         if word in wordcounts:
             wordcounts[word] = wordcounts[word] + 1
         else:
@@ -62,4 +66,11 @@ while True:
         wortindexdao.updateIndex((word, url, count))
 
     if debug:
-        print(f"Updated indices for {len(wordcounts)} words.")
+        print(f"Updated indices for {len(wordcounts)} lemma_words.")
+
+    non_lemma_words = Preprocess(text).preprocess(sentence_split=False, with_pos=False, do_lemma=False)
+    non_lemma_words = [word.lower() for word in non_lemma_words]
+
+    textdao.saveWords(url, non_lemma_words)
+
+    wordlistsink.send(url, non_lemma_words)

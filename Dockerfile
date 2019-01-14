@@ -13,12 +13,14 @@ WORKDIR /textprocessor
 COPY indexdao indexdao
 COPY textdao textdao
 COPY urlsource urlsource
+COPY wordlistsink wordlistsink
 
 COPY main.py main.py
 
 ENV KAFKA_BOOTSTRAP_SERVERS kafka:9092
 ENV KAFKA_PAGEDETAILS_TOPIC pagedetails
 ENV KAFKA_PAGEDETAILS_GROUP_ID textprocessor
+ENV KAFKA_NEW_WORDLIST_TOPIC new_wordlist
 
 ENV MONGODB_HOST mongo
 ENV MONGODB_DB default

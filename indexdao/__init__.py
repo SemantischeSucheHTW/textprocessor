@@ -1,1 +1,2 @@
 from indexdao.indexdao import IndexDao
+from indexdao.mongodbwortindexdao import MongoDBWortIndexDao

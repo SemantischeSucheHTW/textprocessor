@@ -25,7 +25,7 @@ class MongoDBTextDao(TextDao):
 
         self.pagedetails_collection.update_one(
             { "_id": url },
-            { "$set": { "words": words} },
+            { "$set": { "words": words } },
             upsert=True
         )
 
