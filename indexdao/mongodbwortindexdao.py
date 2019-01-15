@@ -20,22 +20,21 @@ class MongoDBWortIndexDao(IndexDao):
         (word, url, count) = updateValue
         self.wortindex_collection.update_one(
             { "word": word },
-            {
-                "$push": {
-                    "urls_counts": { "url": url, "count": count }
+            { '$addToSet': {
+                "urls_counts" : {
+                    "url" : url,
+                    "count" : count
                 }
-            },
+            }},
             upsert=True
         )
 
     def getUrlsAndCountsfromKey(self, searchKey):
-        docs = self.wortindex_collection.find({ "word": searchKey })
+        assert isinstance(searchKey, str)
+        docs = self.wortindex_collection.find({ "word": searchKey.lower() })
+        urls_counts = []
         for doc in docs:
-            try:
-                assert "url" in doc
-                assert isinstance(doc["url"], str)
-                assert "count" in doc
-                assert isinstance(doc["count", int])
-                yield (doc["url"], doc["count"])
-            except AssertionError:
-                print(f"Failed to validate document {doc}. Skipping!")
+            for url_count in doc["urls_counts"]:
+                urls_counts.append( (url_count["url"], url_count["count"]) )
+
+        return urls_counts
