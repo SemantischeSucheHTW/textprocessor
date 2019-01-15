@@ -53,24 +53,25 @@ while True:
 
     text = textdao.getText(url)
 
-    lemma_words = Preprocess(text).preprocess(sentence_split=False, with_pos=False, do_lemma=True)
+    if text != None and len(text) > 0:
+        lemma_words = Preprocess(text).preprocess(sentence_split=False, with_pos=False, do_lemma=True)
 
-    wordcounts = {}
-    for word in lemma_words:
-        if word in wordcounts:
-            wordcounts[word] = wordcounts[word] + 1
-        else:
-            wordcounts[word] = 1
+        wordcounts = {}
+        for word in lemma_words:
+            if word in wordcounts:
+                wordcounts[word] = wordcounts[word] + 1
+            else:
+                wordcounts[word] = 1
 
-    for word, count in wordcounts.items():
-        wortindexdao.updateIndex((word, url, count))
+        for word, count in wordcounts.items():
+            wortindexdao.updateIndex((word, url, count))
 
-    if debug:
-        print(f"Updated indices for {len(wordcounts)} lemma_words.")
+        if debug:
+            print(f"Updated indices for {len(wordcounts)} lemma_words.")
 
-    non_lemma_words = Preprocess(text).preprocess(sentence_split=False, with_pos=False, do_lemma=False)
-    non_lemma_words = [word.lower() for word in non_lemma_words]
+        non_lemma_words = Preprocess(text).preprocess(sentence_split=False, with_pos=False, do_lemma=False)
+        non_lemma_words = [word.lower() for word in non_lemma_words]
 
-    textdao.saveWords(url, non_lemma_words)
+        textdao.saveWords(url, non_lemma_words)
 
-    wordlistsink.send(url, non_lemma_words)
+        wordlistsink.send(url, non_lemma_words)
