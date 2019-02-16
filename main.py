@@ -72,6 +72,6 @@ while True:
         non_lemma_words = Preprocess(text).preprocess(sentence_split=False, with_pos=False, do_lemma=False)
         non_lemma_words = [word.lower() for word in non_lemma_words]
 
-        textdao.saveWords(url, non_lemma_words)
+        textdao.saveWords(url, non_lemma_words, lemma_words)
 
         wordlistsink.send(url, non_lemma_words)

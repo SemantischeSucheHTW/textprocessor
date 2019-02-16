@@ -21,11 +21,14 @@ class MongoDBTextDao(TextDao):
 
         return doc["text"]
 
-    def saveWords(self, url, words):
+    def saveWords(self, url, non_lemma_words, lemma_words):
 
         self.pagedetails_collection.update_one(
             { "_id": url },
-            { "$set": { "words": words } },
+            { "$set": {
+                "words": non_lemma_words,
+                "lemma_words": lemma_words
+            } },
             upsert=True
         )
 
