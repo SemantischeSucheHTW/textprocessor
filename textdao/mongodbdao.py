@@ -4,9 +4,7 @@ from textdao.textdao import TextDao
 
 
 class MongoDBTextDao(TextDao):
-
     def __init__(self, config):
-
         conf_copy = dict(config)
         db = conf_copy.pop("db")
         pagedetails_collection_name = conf_copy.pop("pagedetails_collection")
@@ -15,20 +13,17 @@ class MongoDBTextDao(TextDao):
         self.db = self.client[db]
         self.pagedetails_collection = self.db[pagedetails_collection_name]
 
-    def getText(self, url):
+    def getTitleAndText(self, url):
+        doc = self.pagedetails_collection.find_one({"_id": url})
 
-        doc = self.pagedetails_collection.find_one({ "_id": url })
-
-        return doc["text"]
+        return doc["title"], doc["text"]
 
     def saveWords(self, url, non_lemma_words, lemma_words):
-
         self.pagedetails_collection.update_one(
-            { "_id": url },
-            { "$set": {
+            {"_id": url},
+            {"$set": {
                 "words": non_lemma_words,
                 "lemma_words": lemma_words
-            } },
+            }},
             upsert=True
         )
-

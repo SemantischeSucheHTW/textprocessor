@@ -1,4 +1,4 @@
 class TextDao:
 
-    def getText(self, url):
+    def getTitleAndText(self, url):
         pass

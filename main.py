@@ -13,6 +13,7 @@ def env(key):
         raise Exception(f"environment variable {key} not set!")
     return value
 
+
 debug = env("DEBUG")
 
 urlSource = KafkaSource({
@@ -41,8 +42,8 @@ wortindexdao = MongoDBWortIndexDao({
 })
 
 wordlistsink = KafkaWordlistSink({
-        "topic": env("KAFKA_NEW_WORDLIST_TOPIC"),
-        "bootstrap_servers": env("KAFKA_BOOTSTRAP_SERVERS"),
+    "topic": env("KAFKA_NEW_WORDLIST_TOPIC"),
+    "bootstrap_servers": env("KAFKA_BOOTSTRAP_SERVERS"),
 })
 
 while True:
@@ -51,10 +52,12 @@ while True:
     if debug:
         print(f"Got url {url}.")
 
-    text = textdao.getText(url)
+    (title, text) = textdao.getTitleAndText(url)
 
-    if text != None and len(text) > 0:
+    if len(text) > 0:
         lemma_words = Preprocess(text).preprocess(sentence_split=False, with_pos=False, do_lemma=True)
+
+        lemma_words.append(Preprocess(title).preprocess(sentence_split=False, with_pos=False, do_lemma=True))
 
         wordcounts = {}
         for word in lemma_words:
@@ -70,6 +73,7 @@ while True:
             print(f"Updated indices for {len(wordcounts)} lemma_words.")
 
         non_lemma_words = Preprocess(text).preprocess(sentence_split=False, with_pos=False, do_lemma=False)
+        non_lemma_words.append(Preprocess(title).preprocess(sentence_split=False, with_pos=False, do_lemma=False))
         non_lemma_words = [word.lower() for word in non_lemma_words]
 
         textdao.saveWords(url, non_lemma_words, lemma_words)
