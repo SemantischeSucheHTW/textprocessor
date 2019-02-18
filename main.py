@@ -57,7 +57,7 @@ while True:
     if len(text) > 0:
         lemma_words = Preprocess(text).preprocess(sentence_split=False, with_pos=False, do_lemma=True)
 
-        lemma_words.append(Preprocess(title).preprocess(sentence_split=False, with_pos=False, do_lemma=True))
+        lemma_words = lemma_words + Preprocess(title).preprocess(sentence_split=False, with_pos=False, do_lemma=True)
 
         wordcounts = {}
         for word in lemma_words:
@@ -73,7 +73,7 @@ while True:
             print(f"Updated indices for {len(wordcounts)} lemma_words.")
 
         non_lemma_words = Preprocess(text).preprocess(sentence_split=False, with_pos=False, do_lemma=False)
-        non_lemma_words.append(Preprocess(title).preprocess(sentence_split=False, with_pos=False, do_lemma=False))
+        non_lemma_words = non_lemma_words + Preprocess(title).preprocess(sentence_split=False, with_pos=False, do_lemma=False)
         non_lemma_words = [word.lower() for word in non_lemma_words]
 
         textdao.saveWords(url, non_lemma_words, lemma_words)
