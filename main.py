@@ -64,7 +64,7 @@ while True:
                                                                     do_lemma=False)
 
     if title is not None and len(title) > 0:
-        title_preproc = Preprocess(text, split_in_sentences=False, with_pos=False)  # do_lemma is True per default
+        title_preproc = Preprocess(title, split_in_sentences=False, with_pos=False)  # do_lemma is True per default
         lemma_words = lemma_words + title_preproc.preprocessed
         non_lemma_words = non_lemma_words + title_preproc.preprocess(sentence_split=False, with_pos=False,
                                                                      do_lemma=False)
