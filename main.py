@@ -54,34 +54,36 @@ while True:
 
     (title, text) = textdao.getTitleAndText(url)
 
+    lemma_words = []
+    non_lemma_words = []
+
     if text is not None and len(text) > 0:
-        lemma_words = Preprocess(text).preprocess(sentence_split=False, with_pos=False, do_lemma=True)
+        text_preproc = Preprocess(text, split_in_sentences=False, with_pos=False)  # do_lemma is True per default
+        lemma_words = lemma_words + text_preproc.preprocessed
+        non_lemma_words = non_lemma_words + text_preproc.preprocess(sentence_split=False, with_pos=False,
+                                                                    do_lemma=False)
 
-        if title is not None and len(title) > 0:
-            lemma_words = lemma_words + Preprocess(title).preprocess(sentence_split=False, with_pos=False,
-                                                                     do_lemma=True)
+    if title is not None and len(title) > 0:
+        title_preproc = Preprocess(text, split_in_sentences=False, with_pos=False)  # do_lemma is True per default
+        lemma_words = lemma_words + title_preproc.preprocessed
+        non_lemma_words = non_lemma_words + title_preproc.preprocess(sentence_split=False, with_pos=False,
+                                                                     do_lemma=False)
 
-        wordcounts = {}
-        for word in lemma_words:
-            if word in wordcounts:
-                wordcounts[word] = wordcounts[word] + 1
-            else:
-                wordcounts[word] = 1
+    wordcounts = {}
+    for word in lemma_words:
+        if word in wordcounts:
+            wordcounts[word] = wordcounts[word] + 1
+        else:
+            wordcounts[word] = 1
 
-        for word, count in wordcounts.items():
-            wortindexdao.updateIndex((word, url, count))
+    for word, count in wordcounts.items():
+        wortindexdao.updateIndex((word, url, count))
 
-        if debug:
-            print(f"Updated indices for {len(wordcounts)} lemma_words.")
+    if debug:
+        print(f"Updated indices for {len(wordcounts)} lemma_words.")
 
-        non_lemma_words = Preprocess(text).preprocess(sentence_split=False, with_pos=False, do_lemma=False)
+    non_lemma_words = [word.lower() for word in non_lemma_words]
 
-        if title is not None and len(title) > 0:
-            non_lemma_words = non_lemma_words + Preprocess(title).preprocess(sentence_split=False, with_pos=False,
-                                                                             do_lemma=False)
+    textdao.saveWords(url, non_lemma_words, lemma_words)
 
-        non_lemma_words = [word.lower() for word in non_lemma_words]
-
-        textdao.saveWords(url, non_lemma_words, lemma_words)
-
-        wordlistsink.send(url, non_lemma_words)
+    wordlistsink.send(url, non_lemma_words)
